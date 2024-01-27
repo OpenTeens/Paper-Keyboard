@@ -17,16 +17,36 @@ def locate(img: cv2.Mat) -> List[tuple]:
     # Use Gaussian blur
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
 
-    # Use Hough transform to detect circles
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=1, maxRadius=20)
+    # Apply binary threshold
+    _, thresh = cv2.threshold(gray, 100, 255, cv2.THRESH_BINARY)
+
+    # Find contours
+    contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Initialize list of ellipses
+    ellipses = []
+
+    for contour in contours:
+        # Check if the contour has enough points to fit an ellipse
+        if len(contour) >= 5:
+            # Fit an ellipse and add it to the list
+            ellipse = cv2.fitEllipse(contour)
+            ellipses.append(ellipse)
+
+    circles = []
+    for ellipse in ellipses:
+        # Convert to a similar circle
+        x, y = ellipse[0]
+        r = (ellipse[1][0] + ellipse[1][1]) / 4
+        circles.append([x, y, r])
 
     # Initialize list of locating points
     locating_points = []
 
     if circles is not None:
-        circles = np.uint16(np.around(circles))
+        circles = np.around(circles)
 
-        for i in circles[0, :]:
+        for i in circles:
             # i = [x, y, r]
 
             # Check if there's a square inside the circle
@@ -52,10 +72,13 @@ def locate(img: cv2.Mat) -> List[tuple]:
                         break
 
             if has_sq:
-                locating_points.append((i[0], i[1]))
+                if i[0] > 0 and i[1] > 0:
+                    i = int(i[0]), int(i[1])
+                    locating_points.append((i[0], i[1]))
 
     # draw the locating points
     for point in locating_points:
+        print(point)
         cv2.circle(img, point, 3, (0, 0, 255), 3)
 
     if len(locating_points) < 3:
