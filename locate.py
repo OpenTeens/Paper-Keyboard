@@ -1,3 +1,4 @@
+import math
 from typing import List
 import cv2
 import numpy as np
@@ -68,15 +69,15 @@ def locate(img: cv2.Mat) -> List[tuple]:
         p2 = None
         for i in range(len(locating_points)):
             for j in range(i+1, len(locating_points)):
-                dist = (locating_points[i][0] - locating_points[j][0]) ** 2 + \
-                       (locating_points[i][1] - locating_points[j][1]) ** 2
+                a, b = locating_points[i], locating_points[j]
+                dist = math.dist(a, b)
+
                 if dist > max_dist:
                     max_dist = dist
-                    p1 = locating_points[i]
-                    p2 = locating_points[j]
+                    p1, p2 = a, b
 
         # use the 3rd point to determine the 4th point
-        p3 = locating_points[2]
+        p3 = [point for point in locating_points if point not in (p1, p2)][0]
 
         # mirror p3 to get p4
         pmid = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
