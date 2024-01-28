@@ -1,7 +1,5 @@
-import math
 from typing import List, Union
 import cv2
-import numpy as np
 
 
 def locate(img: cv2.Mat) -> Union[List[tuple], None]:
@@ -60,6 +58,6 @@ def process(img):
 
     # Draw the area
     cv2.line(img, p1, p2, (0, 200, 0), 2)
-    cv2.line(img, p2, p4, (0, 200, 0), 2)
-    cv2.line(img, p4, p3, (0, 200, 0), 2)
-    cv2.line(img, p3, p1, (0, 200, 0), 2)
+    cv2.line(img, p2, p3, (0, 200, 0), 2)
+    cv2.line(img, p3, p4, (0, 200, 0), 2)
+    cv2.line(img, p4, p1, (0, 200, 0), 2)
